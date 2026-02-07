@@ -1,0 +1,115 @@
+import json
+from datetime import datetime, timedelta
+
+LOAN_DAYS = 14
+DATA_FILE = "library.json"
+
+class Book:
+    def __init__(self, title, author, isbn, available=True, due=None):
+        self.title = title
+        self.author = author
+        self.isbn = isbn
+        self.available = available
+        self.due = due
+
+    def borrow(self):
+        self.available = False
+        self.due = (datetime.now() + timedelta(days=LOAN_DAYS)).strftime("%Y-%m-%d")
+
+    def return_book(self):
+        self.available = True
+        self.due = None
+
+class Member:
+    def __init__(self, name, mid):
+        self.name = name
+        self.id = mid
+        self.borrowed = []
+
+class Library:
+    def __init__(self):
+        self.books = {}
+        self.members = {}
+        self.load()
+
+    def add_book(self, book):
+        self.books[book.isbn] = book
+        self.save()
+
+    def add_member(self, member):
+        self.members[member.id] = member
+        self.save()
+
+    def borrow_book(self, isbn, mid):
+        b, m = self.books.get(isbn), self.members.get(mid)
+        if b and m and b.available:
+            b.borrow()
+            m.borrowed.append(isbn)
+            self.save()
+            return "Book borrowed"
+        return "Borrow failed"
+
+    def return_book(self, isbn, mid):
+        b, m = self.books.get(isbn), self.members.get(mid)
+        if b and m and isbn in m.borrowed:
+            late = datetime.now() > datetime.strptime(b.due, "%Y-%m-%d")
+            b.return_book()
+            m.borrowed.remove(isbn)
+            self.save()
+            return "Returned (Late)" if late else "Returned"
+        return "Return failed"
+
+    def search(self, key):
+        return [b for b in self.books.values()
+                if key.lower() in (b.title + b.author + b.isbn).lower()]
+
+    def stats(self):
+        total = len(self.books)
+        available = sum(b.available for b in self.books.values())
+        return total, available, total - available, len(self.members)
+
+    def save(self):
+        with open(DATA_FILE, "w") as f:
+            json.dump({
+                "books": {k: b.__dict__ for k, b in self.books.items()},
+                "members": {k: m.__dict__ for k, m in self.members.items()}
+            }, f)
+
+    def load(self):
+        try:
+            with open(DATA_FILE) as f:
+                d = json.load(f)
+                self.books = {k: Book(**v) for k, v in d["books"].items()}
+                self.members = {k: Member(v["name"], v["id"]) for k, v in d["members"].items()}
+        except:
+            pass
+
+lib = Library()
+print("\n=== LIBRARY MANAGEMENT SYSTEM ===")
+
+while True:
+    print("\n1.Add Book 2.Add Member 3.Borrow 4.Return 5.Search 6.Stats 7.Exit")
+    c = input("Choice: ")
+
+    if c == "1":
+        lib.add_book(Book(input("Title: "), input("Author: "), input("ISBN: ")))
+
+    elif c == "2":
+        lib.add_member(Member(input("Name: "), input("ID: ")))
+
+    elif c == "3":
+        print(lib.borrow_book(input("ISBN: "), input("Member ID: ")))
+
+    elif c == "4":
+        print(lib.return_book(input("ISBN: "), input("Member ID: ")))
+
+    elif c == "5":
+        for b in lib.search(input("Search: ")):
+            print(b.title, "-", "Available" if b.available else "Borrowed")
+
+    elif c == "6":
+        t, a, b, m = lib.stats()
+        print(f"Total:{t} Available:{a} Borrowed:{b} Members:{m}")
+        
+    elif c == "7":
+        break
