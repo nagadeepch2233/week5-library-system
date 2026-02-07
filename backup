@@ -1,0 +1,26 @@
+import os
+import shutil
+from datetime import datetime
+
+DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+BOOKS_FILE = os.path.join(DATA_DIR, "books.json")
+MEMBERS_FILE = os.path.join(DATA_DIR, "members.json")
+BACKUP_DIR = os.path.join(DATA_DIR, "backup")
+
+os.makedirs(BACKUP_DIR, exist_ok=True)
+
+def backup_data():
+    """Creates timestamped backups of books.json and members.json."""
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    books_backup = os.path.join(BACKUP_DIR, f"books_{timestamp}.json")
+    members_backup = os.path.join(BACKUP_DIR, f"members_{timestamp}.json")
+
+    try:
+        shutil.copy(BOOKS_FILE, books_backup)
+        shutil.copy(MEMBERS_FILE, members_backup)
+        print(f"Backup completed: {timestamp}")
+    except Exception as e:
+        print(f"Backup failed: {e}")
+
+if __name__ == "__main__":
+    backup_data()
