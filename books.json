@@ -1,0 +1,17 @@
+{
+  "101": {
+    "title": "Python Basics",
+    "author": "Guido van Rossum",
+    "isbn": "101",
+    "available": true,
+    "due": null
+  },
+  "102": {
+    "title": "Object Oriented Programming",
+    "author": "James Gosling",
+    "isbn": "102",
+    "available": false,
+    "due": "2026-02-20"
+  }
+}
+
