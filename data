@@ -1,0 +1,17 @@
+import json
+import os
+
+BASE_DIR = os.path.dirname(__file__)
+BOOKS_FILE = os.path.join(BASE_DIR, "books.json")
+MEMBERS_FILE = os.path.join(BASE_DIR, "members.json")
+
+def load_data(file_path):
+    try:
+        with open(file_path, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_data(file_path, data):
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=4)
