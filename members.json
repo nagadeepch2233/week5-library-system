@@ -1,0 +1,12 @@
+{
+  "M1": {
+    "name": "Suresh",
+    "id": "M1",
+    "borrowed": ["102"]
+  },
+  "M2": {
+    "name": "Rakesh",
+    "id": "M2",
+    "borrowed": []
+  }
+}
